@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas — orchestrated AI agents, set up for you</title>
+<style>
+  :root{
+    --ground:#141009;
+    --ground-2:#1a140d;
+    --raised:#221a12;
+    --hair:#352a1f;
+    --hair-soft:#291f16;
+    --ink:#f0e8db;
+    --ink-dim:#a89a86;
+    --ink-faint:#77695a;
+    --ember:#e57a45;
+    --ember-bright:#f79a63;
+    --ember-deep:#b3572c;
+    --sea:#8fb98a;
+    --amber:#d6a03e;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;letter-spacing:.04em;
+    padding:13px 20px;border-radius:9px;border:1px solid var(--ember);background:var(--ember);color:#1a1108;
+    font-weight:600;text-decoration:none;cursor:pointer;transition:all .16s ease}
+  .btn:hover{background:var(--ember-bright);border-color:var(--ember-bright);transform:translateY(-1px)}
+  .btn .mac{width:15px;height:15px;fill:#1a1108;flex:none}
+  .btn.ghost{background:transparent;color:var(--ink-dim);border-color:var(--hair)}
+  .btn.ghost:hover{color:var(--ink);border-color:var(--ink-faint);background:transparent}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-faint)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(9px);
+    background:linear-gradient(var(--ground),rgba(20,16,9,.72));border-bottom:1px solid var(--hair-soft)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px}
+  .mark{font-family:var(--serif);font-size:22px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+  .mark .glyph{width:11px;height:11px;border-radius:50%;background:var(--ember);box-shadow:0 0 12px var(--ember);
+    animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+  /* hero */
+  .hero{position:relative;padding:78px 0 40px;overflow:hidden}
+  .hero .wrap{position:relative;z-index:2}
+  .hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(38px,6.4vw,68px);line-height:1.04;
+    letter-spacing:-.01em;margin:18px 0 0;text-wrap:balance;max-width:16ch}
+  .hero h1 em{font-style:italic;color:var(--ember)}
+  .hero p.lede{font-size:clamp(17px,2.3vw,20px);color:var(--ink-dim);max-width:52ch;margin:20px 0 0}
+  .cta-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:30px}
+  .cta-row .fine{font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.03em}
+
+  /* the living fleet, as ambient hero art */
+  .harbour{position:relative;margin-top:52px;height:280px;border-radius:16px;border:1px solid var(--hair);
+    background:linear-gradient(var(--ground-2),var(--ground));overflow:hidden}
+  .harbour .tide{position:absolute;inset:0;
+    background:linear-gradient(var(--hair-soft) 1px,transparent 1px) 0 0/100% 40px;
+    opacity:.4;mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}
+  .harbour .sweep{position:absolute;inset:-40% 0;pointer-events:none;
+    mask-image:radial-gradient(80% 120% at 50% 50%,#000 20%,transparent 72%)}
+  .harbour .sweep::before{content:"";position:absolute;top:50%;left:50%;width:180%;height:600px;transform:translate(-50%,-50%);
+    background:conic-gradient(from 0deg,transparent 0deg,rgba(229,122,69,.10) 16deg,transparent 44deg);
+    animation:sweep 13s linear infinite}
+  @keyframes sweep{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  .harbour .fleet{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(14px,4vw,46px);
+    flex-wrap:wrap;padding:34px}
+  .ship{display:flex;flex-direction:column;align-items:center;gap:8px;animation:bob var(--d,5s) ease-in-out infinite var(--del,0s)}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .ship .core{position:relative;width:30px;height:30px;border-radius:50%;
+    background:radial-gradient(circle at 40% 34%,#3a2c22,#211913);border:1px solid var(--hair);display:grid;place-items:center}
+  .ship .core::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink-faint)}
+  .ship .tag{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+  .ship[data-s="work"] .core::after{background:var(--sea);box-shadow:0 0 10px var(--sea)}
+  .ship[data-s="work"] .core::before{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid transparent;
+    border-top-color:rgba(143,185,138,.6);animation:spin 2.6s linear infinite}
+  .ship[data-s="work"] .tag{color:var(--sea)}
+  .ship[data-s="hail"] .core::after{background:var(--ember-bright);box-shadow:0 0 14px var(--ember)}
+  .ship[data-s="hail"] .core{border-color:var(--ember-deep)}
+  .ship[data-s="hail"] .core::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:1.5px solid var(--ember);
+    animation:beacon 2s ease-out infinite}
+  .ship[data-s="hail"] .tag{color:var(--ember)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes beacon{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+  .harbour .caption{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);
+    letter-spacing:.1em;z-index:3}
+
+  /* what it is */
+  section{padding:64px 0}
+  .lead{font-family:var(--serif);font-weight:500;font-size:clamp(26px,4vw,38px);line-height:1.2;text-wrap:balance;
+    margin:14px 0 0;max-width:20ch}
+  .props{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+  .prop{background:linear-gradient(var(--ground-2),var(--ground));border:1px solid var(--hair);border-radius:13px;
+    padding:24px 22px;display:flex;flex-direction:column;gap:11px}
+  .prop .n{font-family:var(--mono);font-size:11px;color:var(--ember);letter-spacing:.1em}
+  .prop h3{font-family:var(--serif);font-weight:500;font-size:20px;margin:0}
+  .prop p{margin:0;color:var(--ink-dim);font-size:14.5px}
+
+  /* the glimpse — a signal card, straight from the app's language */
+  .glimpse{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+  .signal{background:linear-gradient(var(--raised),var(--ground-2));border:1px solid var(--hair);border-radius:14px;
+    padding:20px;box-shadow:0 20px 50px -30px rgba(0,0,0,.8)}
+  .signal .head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .signal .head .b{width:9px;height:9px;border-radius:50%;background:var(--ember);box-shadow:0 0 10px var(--ember)}
+  .signal .head b{font-family:var(--serif);font-size:16px;font-weight:500}
+  .signal .head .st{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ember);border:1px solid rgba(229,122,69,.3);border-radius:20px;padding:3px 9px}
+  .signal .ask{background:var(--ground);border:1px solid var(--hair);border-left:2px solid var(--ember);border-radius:8px;
+    padding:12px 13px;font-size:13.5px;color:var(--ink)}
+  .signal .ask .rec{display:block;margin-top:7px;font-family:var(--mono);font-size:10.5px;color:var(--ember)}
+  .signal .row{display:flex;gap:8px;margin-top:13px}
+  .signal .row .b2{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;
+    border-radius:7px;border:1px solid var(--hair);color:var(--ink-dim)}
+  .signal .row .b2.on{background:var(--ember);color:#1a1108;border-color:var(--ember);font-weight:600}
+
+  /* closing */
+  .close{text-align:center;padding:84px 0 48px}
+  .close h2{font-family:var(--serif);font-weight:500;font-size:clamp(28px,4.6vw,44px);margin:0 0 22px;text-wrap:balance}
+  .close .fine{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:16px;letter-spacing:.03em}
+  footer{border-top:1px solid var(--hair-soft);padding:26px 0 40px;color:var(--ink-faint);font-size:12.5px;
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer .mark{font-size:15px;color:var(--ink-dim)}
+
+  /* --- see how it works: a short tour of the real app --- */
+  .tour{display:flex;flex-direction:column;gap:34px;margin-top:46px}
+  .step{display:grid;grid-template-columns:1.05fr .95fr;gap:38px;align-items:center}
+  .step:nth-child(even) .screen{order:2}
+  .step .cap .sn{font-family:var(--mono);font-size:11px;color:var(--ember);letter-spacing:.12em}
+  .step .cap h3{font-family:var(--serif);font-weight:500;font-size:clamp(21px,3vw,27px);margin:9px 0 0;text-wrap:balance}
+  .step .cap p{color:var(--ink-dim);font-size:14.5px;line-height:1.6;margin:11px 0 0;max-width:40ch}
+  .screen{background:linear-gradient(var(--ground-2),var(--ground));border:1px solid var(--hair);border-radius:13px;
+    overflow:hidden;box-shadow:0 26px 64px -34px rgba(0,0,0,.85)}
+  .schrome{display:flex;align-items:center;gap:6px;padding:10px 13px;border-bottom:1px solid var(--hair-soft);background:rgba(0,0,0,.16)}
+  .schrome i{width:9px;height:9px;border-radius:50%;background:var(--hair)}
+  .schrome span{margin-left:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+  .sbody{padding:16px}
+  .chat .umsg{background:var(--raised);border:1px solid var(--hair);border-radius:11px 11px 4px 11px;padding:10px 12px;
+    font-size:13px;max-width:84%;margin-left:auto;color:var(--ink);line-height:1.45}
+  .chat .omsg{display:flex;gap:9px;align-items:flex-start;margin-top:13px;font-size:13px;color:var(--ink-dim);line-height:1.5}
+  .eyes{display:inline-flex;gap:4px;flex:none;margin-top:4px}
+  .eyes b{width:7px;height:11px;border-radius:6px;background:var(--ember);display:block;transform-origin:center;
+    animation:blink 4.4s ease-in-out infinite}
+  @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.12)}}
+  .fleetmini{display:flex;flex-direction:column;gap:11px}
+  .pgroup{border:1px solid var(--hair-soft);border-radius:9px;padding:10px}
+  .pgroup .plabel{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);
+    margin-bottom:8px;display:flex;gap:7px;align-items:center}
+  .pgroup .plabel::before{content:"";width:5px;height:5px;border-radius:1px;background:var(--ink-faint)}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .achip{display:flex;align-items:center;gap:6px;background:var(--raised);border:1px solid var(--hair);border-radius:7px;
+    padding:5px 9px;font-family:var(--mono);font-size:11px;color:var(--ink)}
+  .achip .cd{width:6px;height:6px;border-radius:50%;flex:none}
+  .achip.work .cd{background:var(--sea);box-shadow:0 0 6px rgba(143,185,138,.6);animation:tbreath 4s ease-in-out infinite}
+  .achip.need{border-color:rgba(229,122,69,.34)}
+  .achip.need .cd{background:var(--ember-bright);box-shadow:0 0 6px var(--ember)}
+  .achip.idle{color:var(--ink-dim)}
+  .achip.idle .cd{background:var(--ink-faint)}
+  .achip .sub{color:var(--ink-faint)}
+  @keyframes tbreath{0%,100%{opacity:1}50%{opacity:.6}}
+
+  @media (max-width:760px){
+    .step{grid-template-columns:1fr;gap:20px}
+    .step:nth-child(even) .screen{order:0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ship,.harbour .sweep::before,.ship .core::before,.mark .glyph{animation:none}
+  }
+</style>
+
+<nav><div class="wrap">
+  <div class="mark"><span class="glyph"></span>Atlas</div>
+  <a class="btn" href="https://github.com/georgeandtonic/atlas-releases/releases/latest">
+    <svg class="mac" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 1.6c.1 1-.3 2-.9 2.8-.7.8-1.7 1.4-2.7 1.3-.1-1 .4-2 .9-2.7.7-.8 1.8-1.3 2.7-1.4zM19.3 17c-.5 1.1-.7 1.6-1.3 2.6-.9 1.4-2.1 3.1-3.6 3.1-1.3 0-1.7-.9-3.5-.8-1.8 0-2.2.8-3.5.8-1.5 0-2.6-1.5-3.5-2.9C1 16.6.7 12 2.3 9.6c1-1.6 2.6-2.5 4.1-2.5 1.5 0 2.5.9 3.8.9 1.2 0 2-.9 3.8-.9 1.3 0 2.7.7 3.7 2-3.2 1.8-2.7 6.4.6 7.9z"/></svg>
+    Download for Mac
+  </a>
+</div></nav>
+
+<div class="hero"><div class="wrap">
+  <span class="eyebrow">Orchestrated AI agents · for macOS</span>
+  <h1>A team of AI agents that <em>runs your work</em>.</h1>
+  <p class="lede">Atlas is AI as a system of work: an orchestrator that delegates to a team of specialist agents —
+    each taking on a project, running in parallel, and checking in only when they need a decision from you.
+    It's set up for you, so there's no orchestration to wire up and no code to write.</p>
+  <div class="cta-row">
+    <a class="btn" href="https://github.com/georgeandtonic/atlas-releases/releases/latest">
+      <svg class="mac" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 1.6c.1 1-.3 2-.9 2.8-.7.8-1.7 1.4-2.7 1.3-.1-1 .4-2 .9-2.7.7-.8 1.8-1.3 2.7-1.4zM19.3 17c-.5 1.1-.7 1.6-1.3 2.6-.9 1.4-2.1 3.1-3.6 3.1-1.3 0-1.7-.9-3.5-.8-1.8 0-2.2.8-3.5.8-1.5 0-2.6-1.5-3.5-2.9C1 16.6.7 12 2.3 9.6c1-1.6 2.6-2.5 4.1-2.5 1.5 0 2.5.9 3.8.9 1.2 0 2-.9 3.8-.9 1.3 0 2.7.7 3.7 2-3.2 1.8-2.7 6.4.6 7.9z"/></svg>
+      Download for Mac
+    </a>
+    <a class="btn ghost" href="#how">See how it works</a>
+    <span class="fine">Apple Silicon · free</span>
+  </div>
+
+</div></div>
+
+<section id="how"><div class="wrap">
+  <span class="eyebrow">See how it works</span>
+  <p class="lead">A quick look at using it.</p>
+  <div class="tour">
+
+    <div class="step">
+      <div class="screen chat">
+        <div class="schrome"><i></i><i></i><i></i><span>Orchestrator</span></div>
+        <div class="sbody">
+          <div class="umsg">Build a paper-trading bot for RIVN, backtest the strategy, and tell me how it does.</div>
+          <div class="omsg"><span class="eyes"><b></b><b></b></span><span>On it. I'll spin up a project, put an agent on the build, and have it backtest before anything runs — then come back with the numbers.</span></div>
+        </div>
+      </div>
+      <div class="cap">
+        <span class="sn">01 — Delegate</span>
+        <h3>Tell it what you need, in plain language.</h3>
+        <p>Hand off anything you'd give a sharp teammate — ship a feature, research a question, run a whole project. The orchestrator turns it into real work.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="screen">
+        <div class="schrome"><i></i><i></i><i></i><span>Fleet</span></div>
+        <div class="sbody"><div class="fleetmini">
+          <div class="pgroup"><div class="plabel">rivn-trading-bot</div><div class="chips">
+            <span class="achip work"><span class="cd"></span>agent</span>
+            <span class="achip work"><span class="cd"></span>backtest-runner <span class="sub">· sub</span></span>
+          </div></div>
+          <div class="pgroup"><div class="plabel">overlook</div><div class="chips">
+            <span class="achip need"><span class="cd"></span>agent · needs you</span>
+          </div></div>
+          <div class="pgroup"><div class="plabel">research</div><div class="chips">
+            <span class="achip work"><span class="cd"></span>agent</span>
+            <span class="achip idle"><span class="cd"></span>agent · idle</span>
+          </div></div>
+        </div></div>
+      </div>
+      <div class="cap">
+        <span class="sn">02 — Watch the fleet</span>
+        <h3>A team of agents, working across your projects.</h3>
+        <p>Every project gets its own agent, and agents spin up subagents for bursts of work. You see them all at once — grouped by project, and who's working, idle, or waiting on you.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="screen">
+        <div class="schrome"><i></i><i></i><i></i><span>overlook · agent</span></div>
+        <div class="sbody">
+          <div class="signal" style="border:0;box-shadow:none;padding:0;background:none">
+            <div class="head"><span class="b"></span><b>overlook</b><span class="st">needs you</span></div>
+            <div class="ask">Ship the v2 schema now, or hold for the migration tool?
+              <span class="rec">recommends: ship now — the tool adds a day, and nothing depends on it yet</span></div>
+            <div class="row"><span class="b2 on">Ship it</span><span class="b2">Hold</span><span class="b2">Open agent</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <span class="sn">03 — Make the call</span>
+        <h3>It comes to you for the decisions that matter.</h3>
+        <p>When an agent hits a fork, it surfaces exactly what it needs, with its own recommendation. Answer in one click and it keeps moving. The rest, it handles on its own.</p>
+      </div>
+    </div>
+
+  </div>
+</div></section>
+
+
+<div class="close"><div class="wrap">
+  <h2>Try it on your Mac.</h2>
+  <a class="btn" href="https://github.com/georgeandtonic/atlas-releases/releases/latest">
+    <svg class="mac" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 1.6c.1 1-.3 2-.9 2.8-.7.8-1.7 1.4-2.7 1.3-.1-1 .4-2 .9-2.7.7-.8 1.8-1.3 2.7-1.4zM19.3 17c-.5 1.1-.7 1.6-1.3 2.6-.9 1.4-2.1 3.1-3.6 3.1-1.3 0-1.7-.9-3.5-.8-1.8 0-2.2.8-3.5.8-1.5 0-2.6-1.5-3.5-2.9C1 16.6.7 12 2.3 9.6c1-1.6 2.6-2.5 4.1-2.5 1.5 0 2.5.9 3.8.9 1.2 0 2-.9 3.8-.9 1.3 0 2.7.7 3.7 2-3.2 1.8-2.7 6.4.6 7.9z"/></svg>
+    Download for Mac
+  </a>
+  <div class="fine">macOS 13+ · Apple Silicon</div>
+</div></div>
+
+<footer><div class="wrap" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%">
+  <span class="mark" style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:var(--ember)"></span>Atlas</span>
+  <span>Built for people with too much to do.</span>
+</div></footer>
+
+</html>
